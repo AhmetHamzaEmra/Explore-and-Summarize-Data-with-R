@@ -1,4 +1,5 @@
 library(ggplot2)
+
 library(ggthemes)
 
 
@@ -77,3 +78,41 @@ ggplot(aes(x=age, y=friend_count),data=pf)+
 
 #################################################
 
+cor.test(pf$age,pf$friend_count,method = 'pearson')
+#0.3 is meaning full
+
+
+########################################################
+with(subset(pf,age<=70),cor.test(age,friend_count, method = 'pearson'))
+# age artdikca friedn count azalir. corelation 1 den buyuk yani relation is strong
+
+
+########################################################
+with(subset(pf,age<=70),cor.test(age,friend_count, method = 'spearman'))
+
+
+########################################################
+
+with(pf, cor.test(www_likes_received,likes_received,  method = 'pearson'))
+
+
+ggplot(aes(x=www_likes_received,y=likes_received),data=pf)+
+  geom_point()+
+  xlim(0,quantile(pf$www_likes_received,0.95))+
+  ylim(0,quantile(pf$likes_received,0.95))+
+  geom_smooth(method = 'lm',color='red')
+
+with(pf, cor.test(www_likes_received, y=likes_received), method='pearson')
+
+
+
+
+
+
+######################################################################
+library(alr3)
+data(Mitchell)
+ggplot(aes(x=Month,y=Temp), data=Mitchell)+
+  geom_line()+scale_x_continuous(breaks =seq(0,203,12))
+
+with(Mitchell,cor.test(Month,Temp))
