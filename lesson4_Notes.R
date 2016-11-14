@@ -116,3 +116,34 @@ ggplot(aes(x=Month,y=Temp), data=Mitchell)+
   geom_line()+scale_x_continuous(breaks =seq(0,203,12))
 
 with(Mitchell,cor.test(Month,Temp))
+ggplot(aes(x=age,y=friend_count_mean), data=pf.fc_by_age)+geom_line()
+
+
+#######################################
+pf$age_with_months <-pf$age+(1-pf$dob_month/12)
+library(dplyr)
+age_groups <- group_by(pf, age) 
+pf.fc_by_age <- summarise(age_groups, 
+                          friend_count_mean = mean(friend_count), 
+                          friend_count_median = median(friend_count), 
+                          n = n()) 
+pf.fc_by_age <- arrange(pf.fc_by_age, age) 
+
+head(pf.fc_by_age)
+
+
+ggplot(aes(x=age_with_months,y=friend_count_mean), data=subset(pf.fc_by_age,age_with_months<71))+
+  geom_line()
+
+
+
+
+
+###################################################
+#puting 2 plot in one page
+
+#save plots in varible
+#p1<- ggplot......
+#p2<- ggplot......
+library(gridExtra)
+grid.arrange(p1,p2)
