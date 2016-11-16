@@ -147,3 +147,4 @@ ggplot(aes(x=age_with_months,y=friend_count_mean), data=subset(pf.fc_by_age,age_
 #p2<- ggplot......
 library(gridExtra)
 grid.arrange(p1,p2)
+
