@@ -72,3 +72,47 @@ ggplot(aes(x=volume,y=(price)),data=subset(di, di$volume!=0))+
   scale_color_brewer(type='div')+
   xlim(0,quantile(di$volume,0.99))+
   scale_y_log10()
+
+
+
+
+
+# Many interesting variables are derived from two or more others.
+# For example, we might wonder how much of a person's network on
+# a service like Facebook the user actively initiated. Two users
+# with the same degree (or number of friends) might be very
+# different if one initiated most of those connections on the
+# service, while the other initiated very few. So it could be
+# useful to consider this proportion of existing friendships that
+# the user initiated. This might be a good predictor of how active
+# a user is compared with their peers, or other traits, such as
+# personality (i.e., is this person an extrovert?).
+
+# Your task is to create a new variable called 'prop_initiated'
+# in the Pseudo-Facebook data set. The variable should contain
+# the proportion of friendships that the user initiated.
+
+# This programming assignment WILL BE automatically graded.
+
+# DO NOT DELETE THIS NEXT LINE OF CODE
+# ========================================================================
+
+# ENTER YOUR CODE BELOW THIS LINE
+# ========================================================================
+
+pf<- read.csv('facebook.tsv', sep = '\t')
+str(pf)
+
+pf$prop_initiated <- with(pf, 1-((friend_count-friendships_initiated)/friend_count))
+pf$prop_initiated <- ifelse(is.na(pf$prop_initiated), 0, pf$prop_initiated)
+summary(pf$prop_initiated)
+
+pf$year_joined<- floor(2014-pf$tenure/365)
+pf$year_joined.bucket<-cut(pf$year_joined,
+                           c(2004,2009,2011,2012,2014))
+
+
+
+ggplot(aes(x=tenure,y=prop_initiated),data=subset(pf,!is.na(pf$tenure)))+
+  geom_line(aes(color=year_joined.bucket),stat='summary',fun.y=median)
+
