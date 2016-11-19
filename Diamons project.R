@@ -116,3 +116,76 @@ pf$year_joined.bucket<-cut(pf$year_joined,
 ggplot(aes(x=tenure,y=prop_initiated),data=subset(pf,!is.na(pf$tenure)))+
   geom_line(aes(color=year_joined.bucket),stat='summary',fun.y=median)
 
+
+# Smooth the last plot you created of
+# of prop_initiated vs tenure colored by
+# year_joined.bucket. You can bin together ranges
+# of tenure or add a smoother to the plot.
+
+# There won't be a solution image for this exercise.
+# You will answer some questions about your plot in
+# the next two exercises.
+
+# This assignment is not graded and
+# will be marked as correct when you submit.
+
+# ENTER YOUR CODE BELOW THIS LINE
+# ====================================================
+
+ggplot(aes(x=tenure,y=prop_initiated),data=subset(pf,!is.na(pf$tenure)))+
+  geom_line(aes(color=year_joined.bucket),stat='summary',fun.y=median)+
+  geom_smooth()
+
+
+
+
+# Create a scatter plot of the price/carat ratio
+# of diamonds. The variable x should be
+# assigned to cut. The points should be colored
+# by diamond color, and the plot should be
+# faceted by clarity.
+
+# The plot should look something like this.
+# http://i.imgur.com/YzbWkHT.jpg.
+
+# Note: In the link, a color palette of type
+# 'div' was used to color the histogram using
+# scale_color_brewer(type = 'div')
+
+# This assignment is not graded and
+# will be marked as correct when you submit.
+
+# ENTER YOUR CODE BELOW THIS LINE
+# ===========================================
+
+
+ggplot(aes(x=cut,y=price/carat),data=di)+
+  geom_jitter(aes(color=color))+
+  scale_color_brewer(type='div')+
+  facet_wrap(~clarity)
+
+
+
+
+
+# The Gapminder website contains over 500 data sets with information about
+# the world's population. Your task is to continue the investigation you did at the
+# end of Problem Set 4 or you can start fresh and choose a different
+# data set from Gapminder.
+
+# If you're feeling adventurous or want to try some data munging see if you can
+# find a data set or scrape one from the web.
+
+# In your investigation, examine 3 or more variables and create 2-5 plots that make
+# use of the techniques from Lesson 5.
+
+# You can find a link to the Gapminder website in the Instructor Notes.
+
+# Once you've completed your investigation, create a post in the discussions that includes:
+#       1. the variable(s) you investigated, your observations, and any summary statistics
+#       2. snippets of code that created the plots
+#       3. links to the images of your plots
+
+# Copy and paste all of the code that you used for
+# your investigation, and submit it when you are ready.
+# ============================================================================================
