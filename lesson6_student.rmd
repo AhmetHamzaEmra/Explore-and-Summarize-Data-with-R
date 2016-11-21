@@ -47,14 +47,14 @@ Notes:
 
 ```{r ggpairs Function}
 # install these if necessary
-install.packages('GGally')
-install.packages('scales')
-install.packages('memisc')
-install.packages('lattice')
-install.packages('MASS')
-install.packages('car')
-install.packages('reshape')
-install.packages('plyr')
+#install.packages('GGally')
+#install.packages('scales')
+#install.packages('memisc')
+#install.packages('lattice')
+#install.packages('MASS')
+#install.packages('car')
+#install.packages('reshape')
+#install.packages('plyr')
 
 # load the ggplot graphics package and the others
 library(ggplot2)
@@ -105,6 +105,7 @@ ggplot(aes(carat, price), data = diamonds) +
 ### Create a new function to transform the carat variable
 
 ```{r cuberoot transformation}
+
 cuberoot_trans = function() trans_new('cuberoot', transform = function(x) x^(1/3),
                                       inverse = function(x) x^3)
 ```
@@ -151,7 +152,7 @@ Notes:
 Alter the code below.
 ```{r Price vs. Carat and Clarity}
 # install and load the RColorBrewer package
-install.packages('RColorBrewer')
+#install.packages('RColorBrewer')
 library(RColorBrewer)
 
 ggplot(aes(x = carat, y = price), data = diamonds) + 
@@ -287,13 +288,13 @@ Response:
 Notes:
 
 ```{r A Bigger, Better Data Set}
-install.package('bitops')
-install.packages('RCurl')
+#install.package('bitops')
+#install.packages('RCurl')
 library('bitops')
 library('RCurl')
 
-diamondsurl = getBinaryURL("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda")
-load(rawConnection(diamondsurl))
+
+load(url("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda"))
 ```
 
 The code used to obtain the data is available here:
@@ -303,6 +304,16 @@ https://github.com/solomonm/diamonds-data
 Notes:
 
 ```{r Building a Model Using the Big Diamonds Data Set}
+diamondsbig$logprice= log(diamondsbig$price)
+m1<-lm(diamondsbig$logprice~I(diamondsbig$carat^(1/3)),
+       data=diamondsbig[diamondsbig$price<10000 &
+                          diamondsbig$cert=='GTA'])
+
+m2<-update(m1, ~ . +diamondsbig$carat)
+m3<-update(m2, ~ . +diamondsbig$cut)
+m4<-update(m3, ~ . +diamondsbig$color)
+m5<-update(m4, ~ . +diamondsbig$clarity)
+mtable(m1,m2,m3,m4,m5)
 
 ```
 
@@ -315,14 +326,17 @@ Example Diamond from BlueNile:
 Round 1.00 Very Good I VS1 $5,601
 
 ```{r}
-#Be sure you’ve loaded the library memisc and have m5 saved as an object in your workspace.
-thisDiamond = data.frame(carat = 1.00, cut = "V.Good",
+#Be sure youve loaded the library memisc and have m5 saved as an object in your workspace.
+thisDiamond = data.frame(carat = 1.00, cut = 'Good',
                          color = "I", clarity="VS1")
 modelEstimate = predict(m5, newdata = thisDiamond,
                         interval="prediction", level = .95)
+exp(modelEstimate)
+
 ```
 
 Evaluate how well the model predicts the BlueNile diamond's price. Think about the fitted point estimate as well as the 95% CI.
+
 
 ***
 
