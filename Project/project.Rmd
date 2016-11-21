@@ -1,49 +1,46 @@
 TITLE by YOUR_NAME_HERE
 ========================================================
-The Data-Set contains offerings of used cars in Germany (20 attributes, 371528 examples). These cars where submitted to the website 'eBay Villeinage' and have been crawled between 2016-03-05 and 2016-04-07. In the following we are going to take a look at the data.
-Thanks to 'Orges Leka' for providing this Data-Set.
+Over 370000 used cars scraped with Scrapy from Ebay-Kleinanzeigen. The content of the data is in german, so one has to translate it first if one can not speak german. Those fields are included:
 
-We can use these variables to evaluate the set:
+dateCrawled : when this ad was first crawled, all field-values are taken from this date
 
-date Crawled         : when advert was first crawled, all field-values are taken from this date
+name : "name" of the car
 
-name                : headline, which the owner of the car gave to the advert
+seller : private or dealer
 
-seller              : 'privat'(ger)/'private'(en) or 'gewerblich'(ger)/'dealer'(en)
+offerType
 
-offerType           : 'Angebot'(ger)/'offer'(en) or 'Gesuch'(ger)/'request'(en)
+price : the price on the ad to sell the car
 
-price               : the price on the advert to sell the car
+abtest
 
-abtest              : !can't interpret myself! maybe TÜV(ger)/MOT(en)
+vehicleType
 
-vehicleType         : one of eight vehicle-categories 
+yearOfRegistration : at which year the car was first registered
 
-yearOfRegistration  : at which year the car was first registered
+gearbox
+powerPS : power of the car in PS
 
-gearbox             : 'manuell'(ger)/'manual'(en) or 'automatik'(ger)/'automatic'(en)
+model
 
-powerPS             : the power of the car in PS
-
-model               : the cars model
-
-kilometer           : how many kilometres the car has driven
+kilometer : how many kilometers the car has driven
 
 monthOfRegistration : at which month the car was first registered
 
-fuelType            : one of seven fuel-categories
+fuelType
 
-brand               : the cars brand
+brand
 
-notRepairedDamage   : if the car has a damage which is not repaired yet
+notRepairedDamage : if the car has a damage which is not repaired yet
 
-dateCreated         : the date for which the advert at 'ebay Kleinanzeigen' was created
+dateCreated : the date for which the ad at ebay was created
 
-nrOfPictures        : number of pictures in the advert
+nrOfPictures : number of pictures in the ad
 
-postalCode          : where in germany the car is located
+postalCode
 
-lastSeenOnline      : when the crawler saw this advert last online
+lastSeenOnline : when the crawler saw this ad last online
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using
 # in your analysis in this code chunk.
@@ -79,28 +76,73 @@ summary(data)
 ```
 
 # Univariate Plots Section
+
+### Price 
+
+
+```{r}
+summary(data$price)
+```
+as we can see there are a lot of outliers for example, there should not be any car for free and also the upper band is very high. So we need to clean some data.
+
+```{r}
+data<-subset(data,price<100000)
+data<-subset(data,price!=0)
+```
+
+
+```{r}
+summary(data$price)
+```
+still for minimum price 1 is less but lest keep it. there might be a scrap.
+
+
 ```{r echo=FALSE, Univariate_Plots}
 ggplot(aes(x=price),data=data)+
-  geom_histogram()+xlim(0,quantile(data$price,0.99))
+  geom_histogram()
 ```
 ```{r}
 ggplot(aes(x=price),data=data)+
   geom_histogram()+
-  xlim(0,quantile(data$price,0.99))+
-  scale_x_continuous(trans = log10_trans())
+  scale_x_log10()
 ```
+
+### Year of Registration
+
+```{r}
+summary(data$yearOfRegistration)
+```
+also for this column max date can not be after 2016. this is which year data from. also first car ivented at 1885 (whick is still to less but), so there cannot be any thing before that year.
+
+```{r}
+data<-subset(data, yearOfRegistration<2016)
+data<-subset(data, yearOfRegistration>1885)
+
+```
+after cleaning process:
+```{r}
+summary(data$yearOfRegistration)
+```
+lets create the histograms:
+```{r}
+ggplot(data=data,aes(x=yearOfRegistration))+
+  geom_histogram()+
+  labs(title='Year Of Registration', y = 'number of cars', x='Registration year')
+  
+```
+
+
+so we need to take out the outliers 
+```{r}
+ggplot(data=data,aes(x=yearOfRegistration))+
+  geom_histogram()
+```
+As we can see 
 
 # Univariate Analysis
 
-### What is the structure of your dataset?
 
-### What is/are the main feature(s) of interest in your dataset?
 
-### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
-
-### Did you create any new variables from existing variables in the dataset?
-
-### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
 
 
