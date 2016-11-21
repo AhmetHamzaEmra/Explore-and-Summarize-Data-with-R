@@ -1,0 +1,166 @@
+TITLE by YOUR_NAME_HERE
+========================================================
+The Data-Set contains offerings of used cars in Germany (20 attributes, 371528 examples). These cars where submitted to the website 'eBay Villeinage' and have been crawled between 2016-03-05 and 2016-04-07. In the following we are going to take a look at the data.
+Thanks to 'Orges Leka' for providing this Data-Set.
+
+We can use these variables to evaluate the set:
+
+date Crawled         : when advert was first crawled, all field-values are taken from this date
+
+name                : headline, which the owner of the car gave to the advert
+
+seller              : 'privat'(ger)/'private'(en) or 'gewerblich'(ger)/'dealer'(en)
+
+offerType           : 'Angebot'(ger)/'offer'(en) or 'Gesuch'(ger)/'request'(en)
+
+price               : the price on the advert to sell the car
+
+abtest              : !can't interpret myself! maybe TÜV(ger)/MOT(en)
+
+vehicleType         : one of eight vehicle-categories 
+
+yearOfRegistration  : at which year the car was first registered
+
+gearbox             : 'manuell'(ger)/'manual'(en) or 'automatik'(ger)/'automatic'(en)
+
+powerPS             : the power of the car in PS
+
+model               : the cars model
+
+kilometer           : how many kilometres the car has driven
+
+monthOfRegistration : at which month the car was first registered
+
+fuelType            : one of seven fuel-categories
+
+brand               : the cars brand
+
+notRepairedDamage   : if the car has a damage which is not repaired yet
+
+dateCreated         : the date for which the advert at 'ebay Kleinanzeigen' was created
+
+nrOfPictures        : number of pictures in the advert
+
+postalCode          : where in germany the car is located
+
+lastSeenOnline      : when the crawler saw this advert last online
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using
+# in your analysis in this code chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk.
+# This prevents the code from displaying in the knitted HTML output.
+# You should set echo=FALSE for all code chunks in your file.
+
+library(ggplot2)
+
+
+
+# load the ggplot graphics package and the others
+library(GGally)
+library(scales)
+library(memisc)
+library(ggthemes)
+library(RColorBrewer)
+
+
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+data<-read.csv("autos.csv")
+
+str(data)
+
+
+```
+```{r}
+summary(data)
+```
+
+# Univariate Plots Section
+```{r echo=FALSE, Univariate_Plots}
+ggplot(aes(x=price),data=data)+
+  geom_histogram()+xlim(0,quantile(data$price,0.99))
+```
+```{r}
+ggplot(aes(x=price),data=data)+
+  geom_histogram()+
+  xlim(0,quantile(data$price,0.99))+
+  scale_x_continuous(trans = log10_trans())
+```
+
+# Univariate Analysis
+
+### What is the structure of your dataset?
+
+### What is/are the main feature(s) of interest in your dataset?
+
+### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+
+### Did you create any new variables from existing variables in the dataset?
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+
+
+
+# Bivariate Plots Section
+```{r echo=FALSE, Bivariate_Plots}
+
+```
+
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+
+### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+
+
+
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+### Were there any interesting or surprising interactions between features?
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+```
+
+### Description One
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+```
+
+### Description Two
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+```
+
+### Description Three
+
+------
+
+# Reflection
