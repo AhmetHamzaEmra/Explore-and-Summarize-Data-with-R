@@ -19,6 +19,7 @@ vehicleType
 yearOfRegistration : at which year the car was first registered
 
 gearbox
+
 powerPS : power of the car in PS
 
 model
@@ -49,16 +50,19 @@ lastSeenOnline : when the crawler saw this ad last online
 # This prevents the code from displaying in the knitted HTML output.
 # You should set echo=FALSE for all code chunks in your file.
 
-library(ggplot2)
+
 
 
 
 # load the ggplot graphics package and the others
+library(ggplot2)
 library(GGally)
 library(scales)
 library(memisc)
 library(ggthemes)
 library(RColorBrewer)
+library(data.table)
+library(lubridate)
 
 
 ```
@@ -71,11 +75,38 @@ str(data)
 
 
 ```
+
+
+## Delete useless columns
+```{r}
+data$nrOfPictures <- NULL 
+data$seller <- NULL
+data$offerType <- NULL
+data<-subset(data, powerPS<1000)
+```
+
+
+
+
+## Format time
+```{r}
+data$dateCrawled <- ymd_hms(data$dateCrawled)
+data$dateCreated <- ymd_hms(data$dateCreated)
+data$lastSeen <- ymd_hms(data$lastSeen)
+```
+
+
+
+
+
+
 ```{r}
 summary(data)
 ```
 
+
 # Univariate Plots Section
+
 
 ### Price 
 
@@ -83,8 +114,12 @@ summary(data)
 ```{r}
 summary(data$price)
 ```
-as we can see there are a lot of outliers for example, there should not be any car for free and also the upper band is very high. So we need to clean some data.
 
+
+
+<p>
+as we can see there are a lot of outliers for example, there should not be any car for free and also the upper band is very high. So we need to clean some data.
+<p/>
 ```{r}
 data<-subset(data,price<100000)
 data<-subset(data,price!=0)
@@ -99,12 +134,15 @@ still for minimum price 1 is less but lest keep it. there might be a scrap.
 
 ```{r echo=FALSE, Univariate_Plots}
 ggplot(aes(x=price),data=data)+
-  geom_histogram()
+  geom_histogram()+
+  labs(title='Price Diagram', y = 'number of cars', x='Price')
+  
+
 ```
 ```{r}
 ggplot(aes(x=price),data=data)+
   geom_histogram()+
-  scale_x_log10()
+  scale_y_log10()
 ```
 
 ### Year of Registration
@@ -116,7 +154,7 @@ also for this column max date can not be after 2016. this is which year data fro
 
 ```{r}
 data<-subset(data, yearOfRegistration<2016)
-data<-subset(data, yearOfRegistration>1885)
+data<-subset(data, yearOfRegistration>1950)
 
 ```
 after cleaning process:
@@ -132,24 +170,71 @@ ggplot(data=data,aes(x=yearOfRegistration))+
 ```
 
 
-so we need to take out the outliers 
 ```{r}
-ggplot(data=data,aes(x=yearOfRegistration))+
-  geom_histogram()
+summary(data$vehicleType)
 ```
-As we can see 
+```{r}
+ggplot(data=subset(data, vehicleType !="") , aes(x=vehicleType))+
+  geom_histogram(stat = 'count')
+```
 
-# Univariate Analysis
+I think it is stange that there are more limusine than the other kind of cars.
 
 
+### Brand
 
+
+```{r}
+summary(data$brand)
+```
+```{r}
+ggplot(data=data,aes(x=brand))+
+  geom_histogram(bins = 50,stat='count')+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x='Brand of Car', y='number of car',title = 'Brad Diagram')
+```
+volkswagen looks like the most popular car in the market. lets check which kind of volkswagens are in market.
+
+```{r}
+ggplot(data=subset(data, brand=="volkswagen"),aes(model))+geom_histogram(stat = 'count')+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## gear box
+
+
+```{r}
+summary(data$gearbox)
+```
+```{r}
+gearbox_table<-table(subset(data, gearbox!="")$gearbox)
+
+pie(gearbox_table)
+```
 
 
 
 # Bivariate Plots Section
-```{r echo=FALSE, Bivariate_Plots}
 
+
+
+```{r echo=FALSE, Bivariate_Plots}
+ggplot(data=data,aes(x=yearOfRegistration, y=price))+
+  geom_point(fill=I("#F79420"),color=I('black'),shape=21)+
+  labs(title='Price & Registration Year')+
+  geom_smooth(method = 'gam')
 ```
+
+
+```{r}
+ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
+  geom_point(fill=I("#F79420"),color=I('black'),shape=21)+
+  labs(title='Price & PowerPW')+
+  geom_smooth(method = 'lm')
+```
+
+
+
 
 # Bivariate Analysis
 
