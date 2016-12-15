@@ -1,4 +1,10 @@
-TITLE by YOUR_NAME_HERE
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+CAR EDA by Ahmet Hamza Emra
 ========================================================
 Over 370000 used cars scraped with Scrapy from Ebay-Kleinanzeigen. The content of the data is in german, so one has to translate it first if one can not speak german. Those fields are included:
 
@@ -49,6 +55,7 @@ lastSeenOnline : when the crawler saw this ad last online
 # Notice that the parameter "echo" was set to FALSE for this code chunk.
 # This prevents the code from displaying in the knitted HTML output.
 # You should set echo=FALSE for all code chunks in your file.
+
 
 
 
@@ -178,6 +185,8 @@ ggplot(data=subset(data, vehicleType !="") , aes(x=vehicleType))+
   geom_histogram(stat = 'count')
 ```
 
+
+
 I think it is stange that there are more limusine than the other kind of cars.
 
 
@@ -193,8 +202,11 @@ ggplot(data=data,aes(x=brand))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   labs(x='Brand of Car', y='number of car',title = 'Brad Diagram')
 ```
-volkswagen looks like the most popular car in the market. lets check which kind of volkswagens are in market.
 
+
+<p>
+volkswagen looks like the most popular car in the market. lets check which kind of volkswagens are in market.
+</p>
 ```{r}
 ggplot(data=subset(data, brand=="volkswagen"),aes(model))+geom_histogram(stat = 'count')+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -216,7 +228,7 @@ pie(gearbox_table)
 
 # Bivariate Plots Section
 
-```{r}
+```{r echo=FALSE}
 set.seed(20022012)
 datas <- data[sample(1:length(data$price), 10000), ]
 datas$name<-NULL
@@ -231,6 +243,8 @@ p_(pm)
 ```
 
 
+<p> as we can see form the table, the corrolation between powerPS and Price is stronger than others. and also there is prity good corrolation number between price and kilometer </p>
+
 ```{r echo=FALSE, Bivariate_Plots}
 ggplot(data=data,aes(x=yearOfRegistration, y=price))+
   geom_point(fill=I("#F79420"),color=I('black'),shape=21)+
@@ -238,6 +252,9 @@ ggplot(data=data,aes(x=yearOfRegistration, y=price))+
   geom_smooth()
 ```
 
+
+
+I was expecting that new cars would have the high price but some of the cars even they are quite antique still have high price. those might be special cars such as classics. 
 
 ```{r}
 ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
@@ -249,14 +266,18 @@ ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
 
 
 
-# Bivariate Analysis
+the relationship between this are very clear as expected. cars with high horse power are most of the time expensive cars. 
 
-### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 
-### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+```{r}
+ggplot(data=data,aes(y=kilometer, x=price))+
+  geom_jitter(fill=I("#F79420"),color=I('black'),shape=21)+
+  labs(title='Price & kilometer')+
+  geom_smooth()
+```
 
-### What was the strongest relationship you found?
-
+\\
+I was expecting that when the kilometer is low, pice would be high. but again some cars behave differently. and again those car might be classics. to understand this situation we need to add another veriable. 
 
 
 
@@ -264,11 +285,48 @@ ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
 
 ```{r echo=FALSE, Multivariate_Plots}
 
+ggplot(aes(x=price, y=kilometer,color=gearbox), data = subset(data, gearbox!="") ) + 
+  geom_point(alpha=0.5,size=1,position = 'jitter') +
+  scale_color_brewer(type='qual', 
+                     guide=guide_legend(title = 'Gearbox',
+                                                    reverse=TRUE, override.aes = list(alpha=1,size=2)))
+
+
+```
+
+<p>as we can see in lower costs purple is more intense. So manuel cars are more likely to be cheaper. but for range (2500 to 5000) outomatic cars has the lead. but after arout 50000 the both gearbox type has same behavior. </p>
+
+
+```{r}
+ggplot(aes(x=price, y=kilometer,color=vehicleType), data = subset(data, vehicleType!="") ) + 
+  geom_smooth(method = 'auto') +
+  scale_color_brewer(type='div', 
+                     guide=guide_legend(title = 'Vehicle Types',
+                                                    reverse=TRUE, override.aes = list(alpha=1,size=2)))
+```
+
+
+```{r}
+
+ggplot(aes(x=price, y=kilometer,color=fuelType), data = subset(data, fuelType!="") ) + 
+  geom_point(alpha=0.5,size=1,position = 'jitter') +
+  scale_color_brewer(type='qual', 
+                     guide=guide_legend(title = 'fuel type',
+                                                    reverse=TRUE, override.aes = list(alpha=1,size=2)))
+
+
+
+```
+```{r}
+library(corrplot)
+corrplot.mixed(cor(data))
 ```
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+
 
 ### Were there any interesting or surprising interactions between features?
 
