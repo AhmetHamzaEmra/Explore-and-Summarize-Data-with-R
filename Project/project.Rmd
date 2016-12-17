@@ -203,10 +203,9 @@ ggplot(data=data,aes(x=brand))+
   labs(x='Brand of Car', y='number of car',title = 'Brad Diagram')
 ```
 
-
-<p>
+\\
 volkswagen looks like the most popular car in the market. lets check which kind of volkswagens are in market.
-</p>
+
 ```{r}
 ggplot(data=subset(data, brand=="volkswagen"),aes(model))+geom_histogram(stat = 'count')+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -242,8 +241,9 @@ p_(pm)
 
 ```
 
+\\
+as we can see form the table, the corrolation between powerPS and Price is stronger than others. and also there is prity good corrolation number between price and kilometer
 
-<p> as we can see form the table, the corrolation between powerPS and Price is stronger than others. and also there is prity good corrolation number between price and kilometer </p>
 
 ```{r echo=FALSE, Bivariate_Plots}
 ggplot(data=data,aes(x=yearOfRegistration, y=price))+
@@ -252,7 +252,7 @@ ggplot(data=data,aes(x=yearOfRegistration, y=price))+
   geom_smooth()
 ```
 
-
+\\
 
 I was expecting that new cars would have the high price but some of the cars even they are quite antique still have high price. those might be special cars such as classics. 
 
@@ -265,7 +265,7 @@ ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
 
 
 
-
+\\
 the relationship between this are very clear as expected. cars with high horse power are most of the time expensive cars. 
 
 
@@ -293,8 +293,8 @@ ggplot(aes(x=price, y=kilometer,color=gearbox), data = subset(data, gearbox!="")
 
 
 ```
-
-<p>as we can see in lower costs purple is more intense. So manuel cars are more likely to be cheaper. but for range (2500 to 5000) outomatic cars has the lead. but after arout 50000 the both gearbox type has same behavior. </p>
+###   
+as we can see in lower costs purple is more intense. So manuel cars are more likely to be cheaper. but for range (2500 to 5000) outomatic cars has the lead. but after arout 50000 the both gearbox type has same behavior.
 
 
 ```{r}
@@ -306,31 +306,28 @@ ggplot(aes(x=price, y=kilometer,color=vehicleType), data = subset(data, vehicleT
 ```
 
 
+##    
+kleinwagen model cars are small and has small engine. so that It is not a suprise that they are cheap. also the andre is german word for other. So there is a lot of car models can be in that category. it is hard to trust that line since we dont know what kind a car it is. 
+
 ```{r}
 
 ggplot(aes(x=price, y=kilometer,color=fuelType), data = subset(data, fuelType!="") ) + 
-  geom_point(alpha=0.5,size=1,position = 'jitter') +
+  geom_point(size=1,position = 'jitter') +
   scale_color_brewer(type='qual', 
                      guide=guide_legend(title = 'fuel type',
                                                     reverse=TRUE, override.aes = list(alpha=1,size=2)))
 
-
-
 ```
-```{r}
-library(corrplot)
-corrplot.mixed(cor(data))
-```
+
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
 
-
+I commend them under the plots. 
 
 ### Were there any interesting or surprising interactions between features?
-
-### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+Since benzin is expencive in europe, i was expecting disel cars to be cheper. but for same kilometer almost allways diesel is expensive. 
 
 ------
 
@@ -346,7 +343,19 @@ corrplot.mixed(cor(data))
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
+library(corrplot)
+datas$dateCrawled<-NULL
+datas$abtest<-NULL
+datas$vehicleType<-NULL
+datas$gearbox<-NULL
+datas$monthOfRegistration<-NULL
+datas$fuelType<-NULL
+datas$notRepairedDamage<-NULL
+datas$lastSeen<-NULL
+datas$brand<-NULL
+datas$postalCode<-NULL
 
+corrplot.mixed(cor(datas))
 ```
 
 ### Description Two
