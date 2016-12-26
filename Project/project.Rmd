@@ -1,5 +1,11 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 
 ```{r global_options, include=FALSE}
+
 knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 ```
@@ -84,23 +90,17 @@ str(data)
 ```
 
 
-## Delete useless columns
+## Formating the data
 ```{r}
 data$nrOfPictures <- NULL 
 data$seller <- NULL
 data$offerType <- NULL
 data<-subset(data, powerPS<1000)
-```
-
-
-
-
-## Format time
-```{r}
 data$dateCrawled <- ymd_hms(data$dateCrawled)
 data$dateCreated <- ymd_hms(data$dateCreated)
 data$lastSeen <- ymd_hms(data$lastSeen)
 ```
+
 
 
 
@@ -115,7 +115,7 @@ summary(data)
 # Univariate Plots Section
 
 
-### Price 
+## Price 
 
 
 ```{r}
@@ -149,10 +149,11 @@ ggplot(aes(x=price),data=data)+
 ```{r}
 ggplot(aes(x=price),data=data)+
   geom_histogram()+
-  scale_y_log10()
+  scale_x_log10(breaks=c(1, 10, 1000, 4000, 15000, 100000), labels=comma)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-### Year of Registration
+## Year of Registration
 
 ```{r}
 summary(data$yearOfRegistration)
@@ -172,7 +173,9 @@ lets create the histograms:
 ```{r}
 ggplot(data=data,aes(x=yearOfRegistration))+
   geom_histogram()+
-  labs(title='Year Of Registration', y = 'number of cars', x='Registration year')
+  labs(title='Year Of Registration', 
+       y = 'number of cars', 
+       x='Registration year')
   
 ```
 
@@ -181,7 +184,8 @@ ggplot(data=data,aes(x=yearOfRegistration))+
 summary(data$vehicleType)
 ```
 ```{r}
-ggplot(data=subset(data, vehicleType !="") , aes(x=vehicleType))+
+ggplot(data=subset(data, vehicleType !="") , 
+       aes(x=vehicleType))+
   geom_histogram(stat = 'count')
 ```
 
@@ -190,7 +194,7 @@ ggplot(data=subset(data, vehicleType !="") , aes(x=vehicleType))+
 I think it is stange that there are more limusine than the other kind of cars.
 
 
-### Brand
+## Brand
 
 
 ```{r}
@@ -200,14 +204,18 @@ summary(data$brand)
 ggplot(data=data,aes(x=brand))+
   geom_histogram(bins = 50,stat='count')+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x='Brand of Car', y='number of car',title = 'Brad Diagram')
+  labs(x='Brand of Car', 
+       y='number of car',
+       title = 'Brad Diagram')
 ```
 
-\\
+
+
 volkswagen looks like the most popular car in the market. lets check which kind of volkswagens are in market.
 
 ```{r}
-ggplot(data=subset(data, brand=="volkswagen"),aes(model))+geom_histogram(stat = 'count')+
+ggplot(data=subset(data, brand=="volkswagen"),
+       aes(model))+geom_histogram(stat = 'count')+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
@@ -227,21 +235,19 @@ pie(gearbox_table)
 
 # Bivariate Plots Section
 
-```{r echo=FALSE}
+```{r}
 set.seed(20022012)
-datas <- data[sample(1:length(data$price), 10000), ]
-datas$name<-NULL
-datas$model<-NULL
-datas$dateCreated<-NULL
-p_ <- GGally::print_if_interactive
-pm<-ggpairs(datas,1:8, 
+mydata <- data[sample(1:length(data$price), 10000), ]
+myvar=c('price', 'kilometer', 'powerPS','yearOfRegistration')
+mydata<-mydata[,myvar]
+ggpairs(mydata, 
         lower = list(continuous = wrap("points", shape = I('.'))), 
         upper = list(combo = wrap("box", outlier.shape = I('.'))))
-p_(pm)
 
 ```
 
-\\
+
+
 as we can see form the table, the corrolation between powerPS and Price is stronger than others. and also there is prity good corrolation number between price and kilometer
 
 
@@ -252,12 +258,12 @@ ggplot(data=data,aes(x=yearOfRegistration, y=price))+
   geom_smooth()
 ```
 
-\\
 
 I was expecting that new cars would have the high price but some of the cars even they are quite antique still have high price. those might be special cars such as classics. 
 
 ```{r}
-ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
+ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),
+       aes(x=powerPS, y=price))+
   geom_point(fill=I("#F79420"),color=I('black'),shape=21)+
   labs(title='Price & PowerPW')+
   geom_smooth(method = 'lm')
@@ -265,18 +271,19 @@ ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),aes(x=powerPS, y=price))+
 
 
 
-\\
 the relationship between this are very clear as expected. cars with high horse power are most of the time expensive cars. 
 
 
 ```{r}
 ggplot(data=data,aes(y=kilometer, x=price))+
-  geom_jitter(fill=I("#F79420"),color=I('black'),shape=21)+
+  geom_jitter(fill=I("#F79420"),
+              color=I('black'),shape=21)+
   labs(title='Price & kilometer')+
   geom_smooth()
 ```
 
-\\
+
+
 I was expecting that when the kilometer is low, pice would be high. but again some cars behave differently. and again those car might be classics. to understand this situation we need to add another veriable. 
 
 
@@ -285,37 +292,44 @@ I was expecting that when the kilometer is low, pice would be high. but again so
 
 ```{r echo=FALSE, Multivariate_Plots}
 
-ggplot(aes(x=price, y=kilometer,color=gearbox), data = subset(data, gearbox!="") ) + 
+ggplot(aes(x=price, y=kilometer,color=gearbox), 
+       data = subset(data, gearbox!="") ) + 
   geom_point(alpha=0.5,size=1,position = 'jitter') +
   scale_color_brewer(type='qual', 
-                     guide=guide_legend(title = 'Gearbox',
-                                                    reverse=TRUE, override.aes = list(alpha=1,size=2)))
+                     guide=guide_legend(title = 'Gearbox',reverse=TRUE, 
+                                        override.aes = list(alpha=1,size=2)))
 
 
 ```
-###   
+
+
+  
 as we can see in lower costs purple is more intense. So manuel cars are more likely to be cheaper. but for range (2500 to 5000) outomatic cars has the lead. but after arout 50000 the both gearbox type has same behavior.
 
 
 ```{r}
-ggplot(aes(x=price, y=kilometer,color=vehicleType), data = subset(data, vehicleType!="") ) + 
+ggplot(aes(x=price, y=kilometer,color=vehicleType), 
+       data = subset(data, vehicleType!="") ) + 
   geom_smooth(method = 'auto') +
   scale_color_brewer(type='div', 
                      guide=guide_legend(title = 'Vehicle Types',
-                                                    reverse=TRUE, override.aes = list(alpha=1,size=2)))
+                                        reverse=TRUE, 
+                                        override.aes = list(alpha=1,size=2)))
 ```
 
 
-##    
+    
 kleinwagen model cars are small and has small engine. so that It is not a suprise that they are cheap. also the andre is german word for other. So there is a lot of car models can be in that category. it is hard to trust that line since we dont know what kind a car it is. 
 
 ```{r}
 
-ggplot(aes(x=price, y=kilometer,color=fuelType), data = subset(data, fuelType!="") ) + 
+ggplot(aes(x=price, y=kilometer,color=fuelType), 
+       data = subset(data, fuelType!="") ) + 
   geom_point(size=1,position = 'jitter') +
   scale_color_brewer(type='qual', 
                      guide=guide_legend(title = 'fuel type',
-                                                    reverse=TRUE, override.aes = list(alpha=1,size=2)))
+                                        reverse=TRUE, 
+                                        override.aes = list(alpha=1,size=2)))
 
 ```
 
@@ -333,41 +347,19 @@ Since benzin is expencive in europe, i was expecting disel cars to be cheper. bu
 
 # Final Plots and Summary
 
-### Plot One
-```{r echo=FALSE, Plot_One}
+## Plot One
 
+```{r echo=FALSE, Plot_Two}
+library(corrplot)
+
+corrplot.mixed(cor(mydata))
 ```
 
 ### Description One
-
-
-### Plot Two
-```{r echo=FALSE, Plot_Two}
-library(corrplot)
-datas$dateCrawled<-NULL
-datas$abtest<-NULL
-datas$vehicleType<-NULL
-datas$gearbox<-NULL
-datas$monthOfRegistration<-NULL
-datas$fuelType<-NULL
-datas$notRepairedDamage<-NULL
-datas$lastSeen<-NULL
-datas$brand<-NULL
-datas$postalCode<-NULL
-
-corrplot.mixed(cor(datas))
-```
-
-### Description Two
-
-
-### Plot Three
-```{r echo=FALSE, Plot_Three}
-
-```
-
-### Description Three
+As we can see from the plot, the strongest possible relation is between horsepower(powerPS) and price. the positive value shows when the one value increase the other also increase. on the other hand relation between kilometer and price is negative. so when the kilometer increse, price most like to decrise. 
 
 ------
 
 # Reflection
+
+German car market is very similar with America. For example, local productions are more in demand. but unlike America the they have more manual car. 
