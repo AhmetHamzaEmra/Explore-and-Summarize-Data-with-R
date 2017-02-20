@@ -1,3 +1,4 @@
+
 ---
 output:
   html_document: default
@@ -54,7 +55,9 @@ postalCode
 
 lastSeenOnline : when the crawler saw this ad last online
 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+
 # Load all of the packages that you end up using
 # in your analysis in this code chunk.
 
@@ -112,6 +115,7 @@ summary(data)
 ```
 
 
+
 # Univariate Plots Section
 
 
@@ -128,8 +132,8 @@ summary(data$price)
 as we can see there are a lot of outliers for example, there should not be any car for free and also the upper band is very high. So we need to clean some data.
 <p/>
 ```{r}
-data<-subset(data,price<100000)
-data<-subset(data,price!=0)
+
+data<-subset(data,(price > quantile(data$price, 0.05)) & (price < quantile(data$price, 0.95)))
 ```
 
 
@@ -286,6 +290,42 @@ ggplot(data=data,aes(y=kilometer, x=price))+
 
 I was expecting that when the kilometer is low, pice would be high. but again some cars behave differently. and again those car might be classics. to understand this situation we need to add another veriable. 
 
+```{r}
+ggplot(data=data ,
+       aes(x=powerPS, y=kilometer))+
+  geom_jitter(fill=I("#F79420"),color=I('black'),alpha=0.5, shape=21)+
+  labs(title='kilometer & PowerPW')
+```
+```{r}
+ggplot(data,aes(x=vehicleType, y=price)) +
+  geom_boxplot(aes(fill = vehicleType)) +
+  stat_summary(fun.y = mean, geom="point", size=2) +
+  xlab('Vehicle Type') +
+  ylab('Price') +
+  ggtitle('Price vs. Vehicle Type')
+       
+```
+
+We observe that SUV is the most expensive vehicle type while kleinwagen is the cheapest. However, kleinwagen have many outliers which may signify either user error or specific higher end brand and model combination.
+
+
+```{r}
+ggplot(data = subset(data, !is.na(powerPS)), aes(x = powerPS, y = price)) +
+  geom_point(alpha = 1/50, color = I("#990000"), position = 'jitter') +
+  geom_smooth() +
+  facet_wrap(~vehicleType) +
+  xlab('Engine Power') +
+  ylab('Price') +
+  ggtitle('Engine Power vs. Price')
+```
+There is linear correlation between engine power (PowerPS) and price in each vehicle type but after 150 powerPS it is possible to observe non-linarites.
+
+```{r}
+ggplot(aes(x= gearbox, y=price), data=subset(data, gearbox!="")) +
+  geom_boxplot(aes(fill=gearbox), color='black') +
+  stat_summary(fun.y = mean, geom="point", size=2) +
+  labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')
+```
 
 
 # Multivariate Plots Section
@@ -333,6 +373,13 @@ ggplot(aes(x=price, y=kilometer,color=fuelType),
 
 ```
 
+```{r}
+ggplot(aes(x= fuelType, y= price), data= subset(data, fuelType!="")) +
+  geom_boxplot(aes(fill= fuelType), color= 'black') +
+  stat_summary(fun.y = mean, geom="point", size=2) +
+  labs(x= 'Fuel Type', y='Price', title= 'Price vs. Fuel Type by Vehichle Type') +
+  facet_wrap(~vehicleType)
+```
 
 # Multivariate Analysis
 
@@ -358,8 +405,44 @@ corrplot.mixed(cor(mydata))
 ### Description One
 As we can see from the plot, the strongest possible relation is between horsepower(powerPS) and price. the positive value shows when the one value increase the other also increase. on the other hand relation between kilometer and price is negative. so when the kilometer increse, price most like to decrise. 
 
+## Plot Two
+```{r}
+ggplot(data = subset(data, powerPS<400), aes(x = powerPS, y = price)) +
+  geom_point(alpha = 1/50, color = I("#990000"), position = 'jitter') +
+  geom_smooth() +
+  facet_wrap(~vehicleType) +
+  xlab('Engine Power') +
+  ylab('Price') +
+  ggtitle('Engine Power vs. Price')
+```
+
+### Description Two
+
+There is linear correlation between engine power (PowerPS) and price in each vehicle type but after 150 powerPS it is possible to observe non-linarites.
+
+## Plot tree
+
+```{r}
+ggplot(aes(x= gearbox, y=price), data=subset(data, gearbox!="")) +
+  geom_boxplot(aes(fill=gearbox), color='black') +
+  stat_summary(fun.y = mean, geom="point", size=2) +
+  labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')
+```
+
+### Description Three
+
+As expected, the second-hand cars with automatic gearbox are more expensive than manual ones.
+
+
 ------
 
 # Reflection
 
-German car market is very similar with America. For example, local productions are more in demand. but unlike America the they have more manual car. 
+Limousine, kombi and kleinwagen are the most popular vehicle types in the second-hand market. Most expensive cars are SUV's while the cheapest ones are kleinwagens.
+On average Kleinwagen vehicle type is the cheapest and has the lowest engine power. But it also shows the most outliers - might be as a result of brand-model diversity.
+The most popular brands are Volkswagen, BMW, Opel, Mercedes, Audi, Ford, Renault, Peugeot, Fiat and Seat. These 10 brand correspond to almost 80% of the cars. (Originally our dataset contains around 40 brands)
+According to our regression analysis, age (39%), kilometer(%23) and engine power(%19) are the most important factors explaining second hand price.
+Most of the cars in the second-hand market are above 100.000 km, even 150.000 km. People does not frequently change cars according to our data set.
+Majority of the second-hand cars are sold only within 35 days. The ratio of the first 10 days (day 0 stands for same day sale) is quite high. This shows us that either Ebay-Kleinanzeigen is very successful at targeting customers or the second-hand market is more fluid that we actually thought.
+To our surprise, there is no strong/significant correlation between selling time and vehicle type, kilometer and price. We saw that whenever price goes up the change to be sold in 10-20 days increases especially in SUV vehicles (rather than 0-10 days) but this is not a general trend.
+Hybrid (electro engine, CNG) second-hand car market is emerging but shows longer selling time trend.
