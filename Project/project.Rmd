@@ -1,9 +1,4 @@
 
----
-output:
-  html_document: default
-  pdf_document: default
----
 
 ```{r global_options, include=FALSE}
 
@@ -102,6 +97,14 @@ data<-subset(data, powerPS<1000)
 data$dateCrawled <- ymd_hms(data$dateCrawled)
 data$dateCreated <- ymd_hms(data$dateCreated)
 data$lastSeen <- ymd_hms(data$lastSeen)
+data$dateCrawled<-NULL
+data$name<- NULL
+data$abtest<-NULL
+data$notRepairedDamage<-NULL
+data$dateCreated<-NULL
+data$postalCode<-NULL
+data$monthOfRegistration<-NULL
+data$lastSeen<-NULL
 ```
 
 
@@ -140,7 +143,7 @@ data<-subset(data,(price > quantile(data$price, 0.05)) & (price < quantile(data$
 ```{r}
 summary(data$price)
 ```
-still for minimum price 1 is less but lest keep it. there might be a scrap.
+
 
 
 ```{r echo=FALSE, Univariate_Plots}
@@ -234,6 +237,50 @@ gearbox_table<-table(subset(data, gearbox!="")$gearbox)
 
 pie(gearbox_table)
 ```
+
+
+
+## kilometer
+
+```{r}
+summary(data$kilometer)
+```
+<p> 
+
+```{r}
+ggplot(data=data,aes(x=kilometer))+
+  geom_histogram(bins = 50,stat='count')+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x='Kilometer', 
+       y='number of car',
+       title = 'Kilometer Diagram')
+```
+
+
+
+## Fueltype
+
+```{r}
+summary(data$fuelType)
+```
+<br />
+there are a lot of missing data in this column so we need to use subset 
+<br />
+
+
+```{r}
+
+ggplot(data=subset(data, fuelType!=""), aes(x=fuelType))+
+  geom_histogram(stat = 'count')+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  labs(x='Kilometer', 
+       y='number of car',
+       title = 'Kilometer Diagram')
+
+
+```
+<br />
+from this table we can understand that the most comman ones. but it is hard to talk about types other thab benzin, diesel and lpg. 
 
 
 
@@ -379,6 +426,7 @@ ggplot(aes(x= fuelType, y= price), data= subset(data, fuelType!="")) +
   stat_summary(fun.y = mean, geom="point", size=2) +
   labs(x= 'Fuel Type', y='Price', title= 'Price vs. Fuel Type by Vehichle Type') +
   facet_wrap(~vehicleType)
+
 ```
 
 # Multivariate Analysis
@@ -397,13 +445,17 @@ Since benzin is expencive in europe, i was expecting disel cars to be cheper. bu
 ## Plot One
 
 ```{r echo=FALSE, Plot_Two}
-library(corrplot)
-
-corrplot.mixed(cor(mydata))
+ggplot(data,aes(x=vehicleType, y=price)) +
+  geom_boxplot(aes(fill = vehicleType)) +
+  stat_summary(fun.y = mean, geom="point", size=2) +
+  xlab('Vehicle Type') +
+  ylab('Price') +
+  ggtitle('Price vs. Vehicle Type')
 ```
 
 ### Description One
-As we can see from the plot, the strongest possible relation is between horsepower(powerPS) and price. the positive value shows when the one value increase the other also increase. on the other hand relation between kilometer and price is negative. so when the kilometer increse, price most like to decrise. 
+We observe that SUV is the most expensive vehicle type while kleinwagen is the cheapest. However, kleinwagen have many outliers which may signify either user error or specific higher end brand and model combination.
+
 
 ## Plot Two
 ```{r}
