@@ -18,7 +18,7 @@ seller : private or dealer
 
 offerType
 
-price : the price on the ad to sell the car
+price : the price on the ad to sell the car (Currency is EURO aloms 1Euro = 1.06Dollar)
 
 abtest
 
@@ -28,11 +28,11 @@ yearOfRegistration : at which year the car was first registered
 
 gearbox
 
-powerPS : power of the car in PS
+powerPS : power of the car in PS (mesurement is horsepower (4500 kilometer per munite))
 
 model
 
-kilometer : how many kilometers the car has driven
+kilometer : how many kilometers the car has driven (1 kilometer = 0.621371 Mile)
 
 monthOfRegistration : at which month the car was first registered
 
@@ -74,6 +74,7 @@ library(ggthemes)
 library(RColorBrewer)
 library(data.table)
 library(lubridate)
+library(data.table)
 
 
 ```
@@ -105,6 +106,7 @@ data$dateCreated<-NULL
 data$postalCode<-NULL
 data$monthOfRegistration<-NULL
 data$lastSeen<-NULL
+
 ```
 
 
@@ -160,6 +162,9 @@ ggplot(aes(x=price),data=data)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+
+
+
 ## Year of Registration
 
 ```{r}
@@ -200,6 +205,25 @@ ggplot(data=subset(data, vehicleType !="") ,
 
 I think it is stange that there are more limusine than the other kind of cars.
 
+##powerPS
+
+```{r}
+summary(data$powerPS)
+```
+<p>Cleaning</p>
+```{r}
+data<-subset(data, data$powerPS < 500)
+summary(data$powerPS)
+```
+
+
+```{r}
+ggplot(aes(x=powerPS),data=data)+
+  geom_histogram()+
+  scale_x_log10(breaks=c(1, 10, 1000, 4000, 15000, 100000), labels=comma)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+```
 
 ## Brand
 
@@ -223,7 +247,8 @@ volkswagen looks like the most popular car in the market. lets check which kind 
 ```{r}
 ggplot(data=subset(data, brand=="volkswagen"),
        aes(model))+geom_histogram(stat = 'count')+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  coord_flip()
 ```
 
 ## gear box
@@ -238,7 +263,15 @@ gearbox_table<-table(subset(data, gearbox!="")$gearbox)
 pie(gearbox_table)
 ```
 
+```{r}
+ggplot(aes(x= gearbox), data=subset(data, gearbox!="")) +
+  geom_bar(color='black') +
+  labs(x= 'Gearbox', y='Number of Cars', title='Gearbox')
+```
 
+
+
+The number of cars with manual gearbox is higher than the automatic ones. This is not surprising considering the ages and kilometers of the second-hand cars.
 
 ## kilometer
 
@@ -248,14 +281,14 @@ summary(data$kilometer)
 <p> 
 
 ```{r}
-ggplot(data=data,aes(x=kilometer))+
-  geom_histogram(bins = 50,stat='count')+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+ggplot(aes(data$kilometer), data=data) +
+  geom_bar(color='black', fill='orange') +
+  scale_y_log10()+
   labs(x='Kilometer', 
        y='number of car',
        title = 'Kilometer Diagram')
 ```
-
+The concentration on the 100.000+ km, particularly 150.000 km, is interesting, even that scale_y_log10() becomes necessary to observe the distribution.
 
 
 ## Fueltype
@@ -280,7 +313,8 @@ ggplot(data=subset(data, fuelType!=""), aes(x=fuelType))+
 
 ```
 <br />
-from this table we can understand that the most comman ones. but it is hard to talk about types other thab benzin, diesel and lpg. 
+
+Majority of the second hand cars' fuel type are benzin or diesel (as expected) but hybrid, elektro, cng stands for emergence of new trends in the second-hand car market.
 
 
 
@@ -317,7 +351,8 @@ ggplot(data=subset(data,(powerPS!=0)&(powerPS<1000) ),
        aes(x=powerPS, y=price))+
   geom_point(fill=I("#F79420"),color=I('black'),shape=21)+
   labs(title='Price & PowerPW')+
-  geom_smooth(method = 'lm')
+  geom_smooth(method = 'lm')+
+  coord_flip()
 ```
 
 
@@ -343,6 +378,8 @@ ggplot(data=data ,
   geom_jitter(fill=I("#F79420"),color=I('black'),alpha=0.5, shape=21)+
   labs(title='kilometer & PowerPW')
 ```
+as we can see horse power biger cars more likely to go more kilometer or they try to sell it on more kilometer. 
+
 ```{r}
 ggplot(data,aes(x=vehicleType, y=price)) +
   geom_boxplot(aes(fill = vehicleType)) +
@@ -357,6 +394,8 @@ We observe that SUV is the most expensive vehicle type while kleinwagen is the c
 
 
 ```{r}
+data<-subset(data, price<20000)
+data<-subset(data,powerPS<400)
 ggplot(data = subset(data, !is.na(powerPS)), aes(x = powerPS, y = price)) +
   geom_point(alpha = 1/50, color = I("#990000"), position = 'jitter') +
   geom_smooth() +
@@ -373,7 +412,7 @@ ggplot(aes(x= gearbox, y=price), data=subset(data, gearbox!="")) +
   stat_summary(fun.y = mean, geom="point", size=2) +
   labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')
 ```
-
+As expected, the second-hand cars with automatic gearbox are more expensive than manual ones.
 
 # Multivariate Plots Section
 
@@ -429,15 +468,6 @@ ggplot(aes(x= fuelType, y= price), data= subset(data, fuelType!="")) +
 
 ```
 
-# Multivariate Analysis
-
-### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
-
-I commend them under the plots. 
-
-### Were there any interesting or surprising interactions between features?
-Since benzin is expencive in europe, i was expecting disel cars to be cheper. but for same kilometer almost allways diesel is expensive. 
-
 ------
 
 # Final Plots and Summary
@@ -445,16 +475,15 @@ Since benzin is expencive in europe, i was expecting disel cars to be cheper. bu
 ## Plot One
 
 ```{r echo=FALSE, Plot_Two}
-ggplot(data,aes(x=vehicleType, y=price)) +
-  geom_boxplot(aes(fill = vehicleType)) +
+ggplot(aes(x= gearbox, y=price), data=subset(data, gearbox!="")) +
+  geom_boxplot(aes(fill=gearbox), color='black') +
   stat_summary(fun.y = mean, geom="point", size=2) +
-  xlab('Vehicle Type') +
-  ylab('Price') +
-  ggtitle('Price vs. Vehicle Type')
+  labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')
+
 ```
 
 ### Description One
-We observe that SUV is the most expensive vehicle type while kleinwagen is the cheapest. However, kleinwagen have many outliers which may signify either user error or specific higher end brand and model combination.
+As expected, the second-hand cars with automatic gearbox are more expensive than manual ones.
 
 
 ## Plot Two
@@ -475,15 +504,18 @@ There is linear correlation between engine power (PowerPS) and price in each veh
 ## Plot tree
 
 ```{r}
-ggplot(aes(x= gearbox, y=price), data=subset(data, gearbox!="")) +
-  geom_boxplot(aes(fill=gearbox), color='black') +
+ggplot(data,aes(x=vehicleType, y=price)) +
+  geom_boxplot(aes(fill = vehicleType)) +
   stat_summary(fun.y = mean, geom="point", size=2) +
-  labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')
+  xlab('Vehicle Type') +
+  ylab('Price') +
+  ggtitle('Price vs. Vehicle Type')
 ```
 
 ### Description Three
+We observe that SUV is the most expensive vehicle type while kleinwagen is the cheapest. However, kleinwagen have many outliers which may signify either user error or specific higher end brand and model combination.
 
-As expected, the second-hand cars with automatic gearbox are more expensive than manual ones.
+
 
 
 ------
@@ -498,3 +530,6 @@ Most of the cars in the second-hand market are above 100.000 km, even 150.000 km
 Majority of the second-hand cars are sold only within 35 days. The ratio of the first 10 days (day 0 stands for same day sale) is quite high. This shows us that either Ebay-Kleinanzeigen is very successful at targeting customers or the second-hand market is more fluid that we actually thought.
 To our surprise, there is no strong/significant correlation between selling time and vehicle type, kilometer and price. We saw that whenever price goes up the change to be sold in 10-20 days increases especially in SUV vehicles (rather than 0-10 days) but this is not a general trend.
 Hybrid (electro engine, CNG) second-hand car market is emerging but shows longer selling time trend.
+
+## Personal Reflections
+Personaly I have hard time because the data was about Germany's used car and I am from Turkey and living in USA. So I didn't have any knowledge in German market. but it was a very awesome experience forlearing to know very little and figuring out from the raw data.
