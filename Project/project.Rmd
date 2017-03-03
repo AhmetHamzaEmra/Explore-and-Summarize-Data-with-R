@@ -2,6 +2,7 @@
 
 ```{r global_options, include=FALSE}
 
+
 knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 ```
@@ -213,6 +214,7 @@ summary(data$powerPS)
 <p>Cleaning</p>
 ```{r}
 data<-subset(data, data$powerPS < 500)
+data<-subset(data, data$powerPS>25)
 summary(data$powerPS)
 ```
 
@@ -220,10 +222,13 @@ summary(data$powerPS)
 ```{r}
 ggplot(aes(x=powerPS),data=data)+
   geom_histogram()+
-  scale_x_log10(breaks=c(1, 10, 1000, 4000, 15000, 100000), labels=comma)+
+  scale_x_log10(breaks=c(1, 10, 75,110.6,143), labels=comma)+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
 ```
+
+most of mid size cars have 175 to 250 horsepower, it seems little bit less. we will check them with Bivariate Plots Section.
+
 
 ## Brand
 
@@ -458,6 +463,7 @@ ggplot(aes(x=price, y=kilometer,color=fuelType),
                                         override.aes = list(alpha=1,size=2)))
 
 ```
+the big purple area on where price is less then 10k and kilometer less then 10k shows that most of cars on athat area works with benzin 
 
 ```{r}
 ggplot(aes(x= fuelType, y= price), data= subset(data, fuelType!="")) +
@@ -467,7 +473,7 @@ ggplot(aes(x= fuelType, y= price), data= subset(data, fuelType!="")) +
   facet_wrap(~vehicleType)
 
 ```
-
+as we saw in previous plot car with benzin has lower mean on price.
 ------
 
 # Final Plots and Summary
@@ -478,44 +484,44 @@ ggplot(aes(x= fuelType, y= price), data= subset(data, fuelType!="")) +
 ggplot(aes(x= gearbox, y=price), data=subset(data, gearbox!="")) +
   geom_boxplot(aes(fill=gearbox), color='black') +
   stat_summary(fun.y = mean, geom="point", size=2) +
-  labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')
+  labs(x= 'Gearbox', y= 'Price', title= 'Price vs. Gearbox')+theme(legend.position="none")
 
 ```
 
 ### Description One
 As expected, the second-hand cars with automatic gearbox are more expensive than manual ones.
+(Currency is EURO aloms 1Euro = 1.06Dollar)
 
 
 ## Plot Two
-```{r}
-ggplot(data = subset(data, powerPS<400), aes(x = powerPS, y = price)) +
-  geom_point(alpha = 1/50, color = I("#990000"), position = 'jitter') +
-  geom_smooth() +
-  facet_wrap(~vehicleType) +
-  xlab('Engine Power') +
-  ylab('Price') +
-  ggtitle('Engine Power vs. Price')
-```
-
-### Description Two
-
-There is linear correlation between engine power (PowerPS) and price in each vehicle type but after 150 powerPS it is possible to observe non-linarites.
-
-## Plot tree
 
 ```{r}
-ggplot(data,aes(x=vehicleType, y=price)) +
+ggplot(subset(data,vehicleType!=""),aes(x=vehicleType, y=price)) +
   geom_boxplot(aes(fill = vehicleType)) +
   stat_summary(fun.y = mean, geom="point", size=2) +
   xlab('Vehicle Type') +
   ylab('Price') +
-  ggtitle('Price vs. Vehicle Type')
+  ggtitle('Price vs. Vehicle Type')+theme(legend.position="none")
+```
+
+### Description Two
+We observe that SUV is the most expensive vehicle type while kleinwagen is the cheapest. However, kleinwagen have many outliers which may signify either user error or specific higher end brand and model combination.
+(Currency is EURO aloms 1Euro = 1.06Dollar)
+
+## Plot Three
+```{r}
+ggplot(data = subset(data, powerPS<400 & vehicleType!=""), aes(x = vehicleType, y = price)) +
+  geom_boxplot(aes(fill = vehicleType)) +
+  stat_summary(fun.y = mean, geom="point", size=2) +
+  xlab('Vehicle Type') +
+  ylab('Engine Power') +
+  ggtitle('Engine Power vs. Vehicle Type')+theme(legend.position="none")
 ```
 
 ### Description Three
-We observe that SUV is the most expensive vehicle type while kleinwagen is the cheapest. However, kleinwagen have many outliers which may signify either user error or specific higher end brand and model combination.
 
-
+As expected the suvs has more horsepower and since kleinwagen is prety small car so it is normal to have small horsepower.<br />
+ (notes:mesurement is horsepower (4500 kilometer per munite))
 
 
 ------
